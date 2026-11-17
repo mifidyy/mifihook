@@ -1,21 +1,16 @@
-#include <atomic>
-#include <thread>
-#include <chrono>
-
-static std::atomic<bool> running{false};
-static std::thread worker;
+#include "../include/core/manager.hpp"
+#include "log.hpp"
 
 extern "C" void mod_init() {
-    running = true;
-    worker = std::thread([]{
-        while (running) {
-            // work
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-    });
+    LOG("Cheat is initializing.");
+    CoreManager::GetInstance().Initialize();
 }
 
 extern "C" void mod_shutdown() {
-    running = false;
-    worker.join();
+    CoreManager::GetInstance().Shutdown();
+}
+
+__attribute__((constructor)) void load_plugin() {
+    LOG("Cheat has been loaded.");
+
 }
