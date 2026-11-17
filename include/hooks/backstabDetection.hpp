@@ -19,6 +19,8 @@ public:
     
     const char* GetSignature() const override { return kSignature; }
 
+    void* GetHookFunction() const override { return reinterpret_cast<void*>(&Hooked); }
+
     void Initialize() override;
     void Kill() override;
 

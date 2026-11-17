@@ -63,10 +63,10 @@ if(THIRD_PARTY_SOURCES)
   target_sources(mymod PRIVATE $<TARGET_OBJECTS:thirdparty>)
 endif()
 
-# Output file is exactly "loader.so" (no "lib" prefix) in build/<type>/
+# Output file is exactly "mifihook.so" (no "lib" prefix) in build/<type>/
 set_target_properties(mymod PROPERTIES
   PREFIX ""
-  OUTPUT_NAME "loader"
+  OUTPUT_NAME "mifihook"
   LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 

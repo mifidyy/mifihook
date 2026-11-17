@@ -39,8 +39,12 @@ void BackstabDetect::Initialize() {
 void BackstabDetect::Kill() {
     LOG("Backstab Detect is being removed...");
 
-    DestroyHook();
+    int rv = DestroyHook();
 
-    LOG("BackstabDetect hook removed");
+    if (!rv) {
+        LOG("Backstab Detect removing FAILED: %d", rv);
+    }
+
+    LOG("BackstabDetect hook removed: %d", rv);
 }
 
