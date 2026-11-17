@@ -3,28 +3,41 @@
 #include <cstdint>
 #include <dlfcn.h>
 #include <link.h>
+#include <cstring>
 
 uintptr_t getGameBaseAdrs() {
-    // asking Linux if we can have acess to process, nullptr > current process (tf2)
+    //get da perms to read nullptr (main process (tf2 (ithink)))
     void* handle = dlopen(nullptr, RTLD_LAZY);
-    if (!handle) {
-        LOG("Something Broke when Getting Base Adress");
-        return 0;
-    }
+    if (!handle) { LOG("dlopen(nullptr) failed"); return 0; }
 
-    //dont ask me waht a link map is idfk
-    uintptr_t base_address = 0;
+    //dis is where the loot will be AT
     link_map* map = nullptr;
-    if (dlinfo(handle, RTLD_DI_LINKMAP, &map) == 0 && map != nullptr) {
-        dlclose(handle);
-        // map->l_addr is the base load address of the game executable
-        base_address = reinterpret_cast<uintptr_t>(map->l_addr);
-        LOG("Found game base address: %p", reinterpret_cast<void*>(base_address));
-        return base_address;
-    }
-    else {LOG("Something bad happened i think..");}
+    uintptr_t result = 0;
 
+    //get the info
+    if (dlinfo(handle, RTLD_DI_LINKMAP, &map) == 0 && map) {
+        link_map* curr = map;
+        //now look thorugh the map i think??
+        while (curr->l_prev) curr = curr->l_prev;
+        //pretty sure we are still itterating through.. or stmh dont ask
+        for (; curr; curr = curr->l_next) {
+            if (!curr->l_name || !*curr->l_name) continue;
+
+            //uh yes
+            const char* slash = strrchr(curr->l_name, '/');
+            const char* file  = slash ? slash + 1 : curr->l_name;
+
+            // exact match on file name, plus the 64-bit TF2 path
+            if (strcmp(file, "client.so") == 0 &&
+                strstr(curr->l_name, "linux64") != nullptr) {
+                result = (uintptr_t)curr->l_addr;
+                LOG("client.so: %s  l_addr=%p", curr->l_name, (void*)result);
+                break;
+            }
+        }
+    }
 
     dlclose(handle);
-    return 0;
+    if (!result) LOG("client.so not found (not loaded yet?)");
+    return result;
 }

@@ -48,6 +48,12 @@ set_target_properties(mymod PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
+add_custom_command(TARGET mymod POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory "$ENV{HOME}/inject/tf2"
+  COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:mymod>" "$ENV{HOME}/inject/tf2/a.so"
+  COMMENT "Copying mifihook to ~/inject/tf2/a.so"
+)
+
 # Your headers
 target_include_directories(mymod PRIVATE src include)
 

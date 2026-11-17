@@ -26,15 +26,11 @@ public:
 
 private:
 
-    uintptr_t target_address;
+    uintptr_t target_address = 0;
 
     // Hook-specific function pointer type
 
     // The actual detour function (must be static so it has a standard C function pointer signature)
     static bool Hooked(void* knife, void* target);
-
-    // State variables scoped safely inside this class (using inline static for C++17+)
-    inline static CanBackstabFn g_original = nullptr;
-    inline static FILE* g_log = nullptr;
 
 };

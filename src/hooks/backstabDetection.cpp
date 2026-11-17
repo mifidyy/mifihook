@@ -8,9 +8,6 @@
 #include <../libs/funchook-1.1.3/include/funchook.h>
 #include "log.hpp"
 
-funchook_t *funchook = funchook_create();
-
-
 
 bool BackstabDetect::Hooked(void* knife, void* target) {
     bool result = s_original(knife, target);
@@ -23,7 +20,17 @@ bool BackstabDetect::Hooked(void* knife, void* target) {
 void BackstabDetect::Initialize() {
     LOG("Backstab Detect is being Initialized...");
 
-    target_address = GameBaseAdress + 0x1d2ea60;
+    target_address = GameBaseAdress + 0x01d2ea65;
+    LOG("target_address = %p", (void*)target_address);
+
+    auto* p = reinterpret_cast<uint8_t*>(target_address);
+    LOG("bytes: %02X %02X %02X %02X %02X %02X", p[0],p[1],p[2],p[3],p[4],p[5]);
+    if (p[0] != 0x55 || p[1] != 0x31 || p[2] != 0xC9 || p[3] != 0x48 || p[4] != 0x89 || p[5] != 0xF2) {
+      LOG("Signature mismatch, not hooking");
+      return;
+    }
+
+    s_original = nullptr;
 
     int rv = CreateHook();
     if (rv == 0) {
@@ -33,7 +40,6 @@ void BackstabDetect::Initialize() {
     } else {
         LOG("Failed to install BackstabDetect hook, error: %d", rv);
     }
-    LOG("BackstabDetect hook installed");
 }
 
 void BackstabDetect::Kill() {
@@ -41,7 +47,7 @@ void BackstabDetect::Kill() {
 
     int rv = DestroyHook();
 
-    if (!rv) {
+    if (rv != 0) {
         LOG("Backstab Detect removing FAILED: %d", rv);
     }
 
