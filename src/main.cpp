@@ -10,6 +10,7 @@ extern "C" void mod_init() {
 
 extern "C" void mod_shutdown() {
     CoreManager::GetInstance().Shutdown();
+    DestroyHooks();
 }
 
 __attribute__((constructor)) void load_plugin() {
