@@ -10,7 +10,7 @@ int hooks::CreateHook(){
 
     // Assign your raw address to the function pointer variable
     m_original = reinterpret_cast<void*>(GetTargetAddress());
-
+    
     // Prepare the hook: 
     // Notice we pass &original_func (a void**) because funchook modifies it 
     // to point to the trampoline function block.
